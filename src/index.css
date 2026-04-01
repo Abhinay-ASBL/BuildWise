@@ -1,21 +1,22 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-sidebar: #FAFBFC;
-  --color-sidebar-border: #E2E8F0;
-  --color-main: #F8FAFC;
-  --color-card: #FFFFFF;
-  --color-card-hover: #F8FAFC;
-  --color-card-border: #E2E8F0;
+  /* ── Color Palette ─────────────────────────── */
+  --color-primary: #0F766E;
+  --color-primary-light: #14B8A6;
+  --color-primary-bg: #F0FDFA;
+  --color-accent: #0369A1;
+  --color-accent-light: #38BDF8;
+  --color-accent-bg: rgba(3, 105, 161, 0.06);
 
-  --color-primary: #1E40AF;
-  --color-primary-light: #3B82F6;
-  --color-primary-bg: rgba(30, 64, 175, 0.06);
+  --color-sidebar-bg: #0F172A;
+  --color-sidebar-hover: #1E293B;
+  --color-sidebar-border: rgba(255, 255, 255, 0.1);
 
-  --color-accent: #0D9488;
-  --color-accent-light: #14B8A6;
-  --color-accent-bg: rgba(13, 148, 136, 0.06);
+  --color-card: rgba(255, 255, 255, 0.8);
+  --color-card-hover: rgba(255, 255, 255, 0.95);
+  --color-card-border: rgba(255, 255, 255, 0.6);
 
   --color-green: #059669;
   --color-green-bg: rgba(5, 150, 105, 0.08);
@@ -24,13 +25,63 @@
   --color-amber: #D97706;
   --color-amber-bg: rgba(217, 119, 6, 0.08);
 
-  --color-text-primary: #0F172A;
+  --color-text-primary: #134E4A;
   --color-text-secondary: #475569;
   --color-text-muted: #94A3B8;
 
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-mono: 'Space Grotesk', sans-serif;
+  --color-main: #F8FAFC;
+
+  /* ── Typography ────────────────────────────── */
+  --font-heading: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'Space Grotesk', monospace;
+
+  /* ── Animations ────────────────────────────── */
+  --animate-fade-in: fade-in 0.4s ease-out both;
+  --animate-fade-in-up: fade-in-up 0.5s ease-out both;
+  --animate-slide-in: slide-in 0.3s ease-out both;
+  --animate-gradient: gradient-shift 15s ease infinite;
 }
+
+/* ── Keyframes ─────────────────────────────── */
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* ── Base ───────────────────────────────────── */
 
 * {
   box-sizing: border-box;
@@ -38,48 +89,131 @@
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--color-main);
+  background: linear-gradient(135deg, #F0FDFA 0%, #F8FAFC 40%, #F0F9FF 100%);
+  background-size: 200% 200%;
+  animation: gradient-shift 15s ease infinite;
   color: var(--color-text-primary);
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Tabular numbers for financial data alignment — use Space Grotesk */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+/* ── Tabular Numbers ───────────────────────── */
+
 .tabular-nums {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 
-/* Custom scrollbar */
+/* ── Glass Cards ───────────────────────────── */
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 1rem;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 10px 15px -3px rgba(0, 0, 0, 0.03),
+    0 0 0 1px rgba(255, 255, 255, 0.4) inset;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-card:hover {
+  transform: scale(1.02);
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.08),
+    0 20px 40px -10px rgba(0, 0, 0, 0.04),
+    0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+}
+
+.glass-card-dark {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.glass-card-dark:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ── Scrollbar ─────────────────────────────── */
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: rgba(15, 118, 110, 0.2);
   border-radius: 3px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: rgba(15, 118, 110, 0.35);
 }
 
-/* Number input spinners hidden */
+/* Dark scrollbar for sidebar */
+.dark-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.dark-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ── Number Input Spinners ─────────────────── */
+
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
 input[type="number"] {
   -moz-appearance: textfield;
 }
 
+/* ── Dot Pattern Background ────────────────── */
+
+.bg-dot-pattern {
+  background-image: radial-gradient(circle, rgba(15, 118, 110, 0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ── Stagger Animation Delays ──────────────── */
+
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+
+/* ── Reduced Motion ────────────────────────── */
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
     transition-duration: 0.01ms !important;
+  }
+  .glass-card:hover {
+    transform: none;
+  }
+  body {
+    animation: none;
   }
 }

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, Plus, Filter, X } from 'lucide-react';
+import { Search, Plus, Filter, X, IndianRupee, TrendingUp } from 'lucide-react';
 import {
   useBudgetStore,
   useCategories,
@@ -39,7 +39,6 @@ export default function CAPEXTable() {
         (li) => li.categoryId === cat.id && !li.isArchived
       );
 
-      // Check if any items match filters
       const matchingItems = catItems.filter((li) => {
         const matchesSearch = !query || li.name.toLowerCase().includes(query);
         const matchesStatus = statusFilters.size === 0 || statusFilters.has(li.status);
@@ -50,9 +49,7 @@ export default function CAPEXTable() {
         return matchesSearch && matchesStatus && matchesTeam;
       });
 
-      // Also check if category name matches search
       const catNameMatches = query && cat.name.toLowerCase().includes(query);
-
       return matchingItems.length > 0 || catNameMatches;
     });
   }, [capexCategories, scenario, searchQuery, statusFilters, teamFilter]);
@@ -79,37 +76,42 @@ export default function CAPEXTable() {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Filter bar */}
-      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3">
-        {/* Search */}
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+      {/* Filter bar — glass card */}
+      <div
+        className="flex flex-wrap items-center gap-3 rounded-2xl border border-white/60
+          bg-white/80 px-5 py-4 shadow-lg shadow-black/5 backdrop-blur-xl"
+      >
+        {/* Search — pill input */}
+        <div className="relative min-w-[220px] flex-1">
+          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search items..."
-            className="w-full rounded-md border border-slate-200 bg-slate-50 py-1.5 pl-8 pr-3
-              text-sm placeholder:text-gray-400 focus:border-blue-300 focus:bg-white
-              focus:ring-1 focus:ring-blue-200 focus:outline-none"
+            className="w-full rounded-full border border-slate-200/80 bg-slate-50/60 py-2 pl-10 pr-4
+              text-sm shadow-sm shadow-black/[0.03] placeholder:text-slate-400
+              transition-all duration-200
+              focus:border-teal-300 focus:bg-white focus:shadow-md focus:shadow-teal-500/10
+              focus:ring-2 focus:ring-teal-500/20 focus:outline-none"
           />
         </div>
 
-        {/* Status multi-select */}
+        {/* Status pill multi-select */}
         <div className="relative">
           <button
             onClick={() => setStatusDropdownOpen((p) => !p)}
-            className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium
-              transition-colors
+            className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold
+              shadow-sm transition-all duration-200
               ${statusFilters.size > 0
-                ? 'border-blue-200 bg-blue-50 text-blue-700'
-                : 'border-slate-200 bg-white text-gray-600 hover:bg-slate-50'
+                ? 'border-teal-200 bg-teal-50 text-teal-700 shadow-teal-500/10'
+                : 'border-slate-200/80 bg-white/90 text-slate-600 hover:border-slate-300 hover:bg-white hover:shadow-md'
               }`}
           >
             <Filter className="h-3.5 w-3.5" />
             Status
             {statusFilters.size > 0 && (
-              <span className="rounded-full bg-blue-200 px-1.5 text-[10px] font-bold text-blue-700">
+              <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-teal-600 px-1.5 text-[10px] font-bold text-white">
                 {statusFilters.size}
               </span>
             )}
@@ -121,7 +123,10 @@ export default function CAPEXTable() {
                 className="fixed inset-0 z-40"
                 onClick={() => setStatusDropdownOpen(false)}
               />
-              <div className="absolute left-0 top-full z-50 mt-1 w-44 rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
+              <div
+                className="absolute left-0 top-full z-50 mt-2 w-48 rounded-xl border border-white/60
+                  bg-white/90 py-1.5 shadow-xl shadow-black/10 backdrop-blur-xl"
+              >
                 {STATUS_ORDER.map((s) => {
                   const c = STATUS_CONFIG[s];
                   const isSelected = statusFilters.has(s);
@@ -129,16 +134,27 @@ export default function CAPEXTable() {
                     <button
                       key={s}
                       onClick={() => toggleStatusFilter(s)}
-                      className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs transition-colors
-                        hover:bg-slate-50 ${isSelected ? 'bg-blue-50/50' : ''}`}
+                      className={`flex w-full items-center gap-2.5 px-3.5 py-2 text-left text-xs
+                        transition-all duration-150
+                        ${isSelected
+                          ? 'bg-teal-50/80 font-semibold'
+                          : 'hover:bg-slate-50/80'
+                        }`}
                     >
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        readOnly
-                        className="h-3 w-3 rounded border-gray-300 text-blue-600"
-                      />
-                      <span className={`h-2 w-2 rounded-full ${c.dot}`} />
+                      <div
+                        className={`flex h-4 w-4 items-center justify-center rounded border transition-colors
+                          ${isSelected
+                            ? 'border-teal-600 bg-teal-600'
+                            : 'border-slate-300 bg-white'
+                          }`}
+                      >
+                        {isSelected && (
+                          <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </div>
+                      <span className={`h-2.5 w-2.5 rounded-full ${c.dot}`} />
                       <span className={`${c.text} font-medium`}>{s}</span>
                     </button>
                   );
@@ -148,17 +164,16 @@ export default function CAPEXTable() {
           )}
         </div>
 
-        {/* Team filter */}
-        <div className="flex rounded-md border border-slate-200 bg-white">
+        {/* Team filter — segmented control */}
+        <div className="relative flex rounded-full border border-slate-200/80 bg-slate-100/60 p-0.5 shadow-sm">
           {(['All', 'PMO', 'AAED'] as TeamFilter[]).map((t) => (
             <button
               key={t}
               onClick={() => setTeamFilter(t)}
-              className={`px-3 py-1.5 text-xs font-medium transition-colors first:rounded-l-md
-                last:rounded-r-md
+              className={`relative rounded-full px-4 py-1.5 text-xs font-semibold transition-all duration-200
                 ${teamFilter === t
-                  ? 'bg-gray-800 text-white'
-                  : 'text-gray-600 hover:bg-slate-50'
+                  ? 'bg-white text-slate-800 shadow-sm shadow-black/10'
+                  : 'text-slate-500 hover:text-slate-700'
                 }`}
             >
               {t}
@@ -170,10 +185,11 @@ export default function CAPEXTable() {
         {hasActiveFilters && (
           <button
             onClick={clearFilters}
-            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs
-              text-gray-500 transition-colors hover:bg-slate-100 hover:text-gray-700"
+            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs
+              font-medium text-slate-500 transition-all duration-200
+              hover:bg-red-50 hover:text-red-600"
           >
-            <X className="h-3 w-3" />
+            <X className="h-3.5 w-3.5" />
             Clear
           </button>
         )}
@@ -186,11 +202,14 @@ export default function CAPEXTable() {
         ))}
 
         {filteredCategories.length === 0 && hasActiveFilters && (
-          <div className="rounded-lg border border-dashed border-slate-300 py-12 text-center">
-            <p className="text-sm text-gray-400">No categories match your filters.</p>
+          <div
+            className="rounded-2xl border border-dashed border-slate-300/60 bg-white/40
+              py-14 text-center backdrop-blur-sm"
+          >
+            <p className="text-sm text-slate-400">No categories match your filters.</p>
             <button
               onClick={clearFilters}
-              className="mt-2 text-xs font-medium text-blue-600 hover:text-blue-700"
+              className="mt-2 text-xs font-semibold text-teal-600 transition-colors hover:text-teal-700"
             >
               Clear all filters
             </button>
@@ -198,31 +217,47 @@ export default function CAPEXTable() {
         )}
 
         {filteredCategories.length === 0 && !hasActiveFilters && (
-          <div className="rounded-lg border border-dashed border-slate-300 py-12 text-center">
-            <p className="text-sm text-gray-400">No CAPEX categories yet.</p>
+          <div
+            className="rounded-2xl border border-dashed border-slate-300/60 bg-white/40
+              py-14 text-center backdrop-blur-sm"
+          >
+            <p className="text-sm text-slate-400">No CAPEX categories yet.</p>
           </div>
         )}
       </div>
 
-      {/* Grand Total */}
+      {/* Grand Total — gradient glass card */}
       <div
-        className="sticky bottom-0 z-20 flex items-center justify-between rounded-lg
-          border-t-2 border-gray-800 bg-white px-6 py-4 shadow-[0_-2px_8px_rgba(0,0,0,0.06)]"
+        className="sticky bottom-0 z-20 flex items-center justify-between rounded-2xl
+          bg-gradient-to-r from-teal-700 to-teal-600 px-7 py-5
+          shadow-xl shadow-teal-900/20"
       >
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-bold uppercase tracking-wide text-gray-800">
-            Total CAPEX
-          </span>
-          <span className="text-xs text-gray-400 font-[tabular-nums]">
-            {formatCostPerSqft(costPerSqft)}
-          </span>
+        <div className="flex items-center gap-4">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+            <IndianRupee className="h-5 w-5 text-white/90" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-xs font-semibold uppercase tracking-wider text-teal-100/80">
+              Total CAPEX
+            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl font-bold tracking-tight text-white font-[tabular-nums]">
+                {formatINR(capexTotal)}
+              </span>
+            </div>
+          </div>
         </div>
-        <span className="text-lg font-bold font-[tabular-nums] text-gray-900">
-          {formatINR(capexTotal)}
-        </span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 rounded-full bg-white/15 px-4 py-2 backdrop-blur-sm">
+            <TrendingUp className="h-3.5 w-3.5 text-teal-100" />
+            <span className="text-sm font-semibold text-white font-[tabular-nums]">
+              {formatCostPerSqft(costPerSqft)}
+            </span>
+          </div>
+        </div>
       </div>
 
-      {/* Add Category */}
+      {/* Add Category — dashed card */}
       <div className="flex justify-center pb-4">
         <button
           onClick={() => {
@@ -231,9 +266,9 @@ export default function CAPEXTable() {
               CATEGORY_COLORS.find((c) => !usedColors.includes(c)) ?? CATEGORY_COLORS[0];
             addCategory({ section: 'capex', color: nextColor });
           }}
-          className="inline-flex items-center gap-2 rounded-lg border border-dashed border-slate-300
-            px-4 py-2.5 text-sm font-medium text-gray-500 transition-colors
-            hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600"
+          className="inline-flex items-center gap-2.5 rounded-2xl border-2 border-dashed border-slate-300/60
+            px-6 py-3 text-sm font-semibold text-slate-400 transition-all duration-200
+            hover:border-teal-400 hover:bg-teal-50/50 hover:text-teal-600 hover:shadow-sm"
         >
           <Plus className="h-4 w-4" />
           Add Category

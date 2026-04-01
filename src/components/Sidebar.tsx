@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   ChevronDown,
   Settings,
+  Building2,
 } from 'lucide-react';
 import { useBudgetStore, useActiveScenario, useSectionTotal, useCostPerSqft } from '../store';
 import { formatINRCompact, formatCostPerSqft, formatINR, formatIndianNumber, parseINR } from '../utils/formatters';
@@ -61,25 +62,32 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
 
   return (
     <aside
-      className={`flex h-screen flex-col border-r border-slate-200 bg-white transition-all duration-200 ${
-        sidebarOpen ? 'w-64' : 'w-16'
+      className={`flex h-screen flex-col bg-gradient-to-b from-slate-900 to-slate-800 transition-all duration-300 ease-in-out ${
+        sidebarOpen ? 'w-[272px]' : 'w-16'
       }`}
     >
-      {/* ─── Header ─────────────────────────────────── */}
-      <div className="flex h-14 shrink-0 items-center justify-between border-b border-slate-200 px-3">
+      {/* ─── Logo & Header ──────────────────────────── */}
+      <div className={`flex shrink-0 items-center border-b border-white/10 ${
+        sidebarOpen ? 'h-16 justify-between px-5' : 'h-16 justify-center'
+      }`}>
         {sidebarOpen ? (
           <>
-            <div className="min-w-0 flex-1">
-              <h1 className="truncate text-sm font-bold text-slate-900">
-                {metadata?.projectName ?? 'BuildWise'}
-              </h1>
-              <p className="text-[10px] text-slate-500">
-                {metadata ? formatIndianNumber(metadata.totalArea) : '0'} sqft
-              </p>
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-teal-500/20">
+                <Building2 size={16} className="text-teal-400" />
+              </div>
+              <div className="min-w-0">
+                <h1 className="truncate text-sm font-bold text-white" style={{ fontFamily: 'var(--font-heading)' }}>
+                  {metadata?.projectName ?? 'BuildWise'}
+                </h1>
+                <p className="text-[11px] text-slate-400">
+                  {metadata ? formatIndianNumber(metadata.totalArea) : '0'} sqft
+                </p>
+              </div>
             </div>
             <button
               onClick={toggleSidebar}
-              className="ml-2 rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+              className="ml-2 rounded-lg p-1.5 text-slate-500 hover:bg-white/10 hover:text-slate-300 transition-colors"
               aria-label="Collapse sidebar"
             >
               <ChevronLeft size={18} />
@@ -88,7 +96,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
         ) : (
           <button
             onClick={toggleSidebar}
-            className="mx-auto rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+            className="rounded-lg p-1.5 text-slate-500 hover:bg-white/10 hover:text-slate-300 transition-colors"
             aria-label="Expand sidebar"
           >
             <Menu size={18} />
@@ -98,12 +106,12 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
 
       {/* ─── Budget Cap ─────────────────────────────── */}
       {sidebarOpen && (
-        <div className="border-b border-slate-200 px-4 py-3">
-          <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-slate-400">
+        <div className="border-b border-white/10 px-5 py-4">
+          <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-slate-500">
             Budget Cap
           </label>
           {editingBudget ? (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <input
                 type="text"
                 value={budgetInput}
@@ -113,12 +121,12 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
                   if (e.key === 'Escape') setEditingBudget(false);
                 }}
                 autoFocus
-                className="w-full rounded border border-slate-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:border-teal-500/50 focus:outline-none focus:ring-1 focus:ring-teal-500/30"
                 placeholder="e.g. 50000000"
               />
               <button
                 onClick={handleBudgetSave}
-                className="shrink-0 rounded bg-blue-600 px-2 py-1 text-[10px] font-medium text-white hover:bg-blue-700"
+                className="shrink-0 rounded-lg bg-teal-500 px-2.5 py-1.5 text-[10px] font-semibold text-white hover:bg-teal-400 transition-colors"
               >
                 Save
               </button>
@@ -126,7 +134,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
           ) : (
             <button
               onClick={startEditBudget}
-              className="w-full text-left text-sm font-semibold text-slate-800 hover:text-blue-600 transition-colors"
+              className="w-full text-left text-sm font-semibold text-teal-400 hover:text-teal-300 transition-colors"
             >
               {metadata?.budgetCap ? formatINR(metadata.budgetCap) : 'Not set — click to set'}
             </button>
@@ -136,22 +144,23 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
 
       {/* ─── Quick Stats ────────────────────────────── */}
       {sidebarOpen && (
-        <div className="border-b border-slate-200 px-4 py-3">
-          <label className="mb-2 block text-[10px] font-medium uppercase tracking-wider text-slate-400">
+        <div className="border-b border-white/10 px-5 py-4">
+          <label className="mb-3 block text-[10px] font-semibold uppercase tracking-widest text-slate-500">
             Quick Stats
           </label>
-          <div className="space-y-1.5">
+          <div className="glass-card-dark space-y-2.5 p-3">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-500">CAPEX</span>
-              <span className="font-semibold text-slate-800">{formatINRCompact(capexTotal)}</span>
+              <span className="text-slate-400">CAPEX</span>
+              <span className="font-semibold text-white tabular-nums">{formatINRCompact(capexTotal)}</span>
             </div>
             <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-500">OPEX / mo</span>
-              <span className="font-semibold text-slate-800">{formatINRCompact(opexTotal)}</span>
+              <span className="text-slate-400">OPEX / mo</span>
+              <span className="font-semibold text-white tabular-nums">{formatINRCompact(opexTotal)}</span>
             </div>
+            <div className="h-px bg-white/5" />
             <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-500">Cost/sqft</span>
-              <span className="font-semibold text-slate-800">{formatCostPerSqft(costPerSqft)}</span>
+              <span className="text-slate-400">Cost/sqft</span>
+              <span className="font-semibold text-teal-400 tabular-nums">{formatCostPerSqft(costPerSqft)}</span>
             </div>
           </div>
         </div>
@@ -159,47 +168,56 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
 
       {/* ─── Scenario Switcher ──────────────────────── */}
       {sidebarOpen && (
-        <div className="border-b border-slate-200 px-4 py-3">
-          <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-slate-400">
+        <div className="border-b border-white/10 px-5 py-4">
+          <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-slate-500">
             Scenario
           </label>
           <div className="relative">
             <select
               value={activeScenarioId}
               onChange={(e) => switchScenario(e.target.value)}
-              className="w-full appearance-none rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1.5 pr-7 text-xs font-medium text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full appearance-none rounded-lg border border-white/10 bg-white/5 px-3 py-2 pr-8 text-xs font-medium text-slate-200 hover:bg-white/10 focus:border-teal-500/50 focus:outline-none focus:ring-1 focus:ring-teal-500/30 transition-colors"
             >
               {scenarioList.map((s) => (
-                <option key={s.id} value={s.id}>
+                <option key={s.id} value={s.id} className="bg-slate-800 text-slate-200">
                   {s.name}
                 </option>
               ))}
             </select>
             <ChevronDown
               size={12}
-              className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-400"
+              className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400"
             />
           </div>
         </div>
       )}
 
       {/* ─── Navigation ─────────────────────────────── */}
-      <nav className="flex-1 overflow-y-auto px-2 py-3">
-        <ul className="space-y-0.5">
+      <nav className="dark-scrollbar flex-1 overflow-y-auto px-3 py-4">
+        <ul className="space-y-1">
           {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
             const isActive = activeTab === id;
             return (
               <li key={id}>
                 <button
                   onClick={() => onTabChange(id)}
-                  className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors ${
+                  className={`group relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-200 ${
                     isActive
-                      ? 'bg-blue-50 font-medium text-blue-700'
-                      : 'text-slate-600 hover:bg-slate-50'
+                      ? 'bg-teal-500/15 font-medium text-teal-400'
+                      : 'text-slate-400 hover:bg-white/10 hover:text-white'
                   } ${!sidebarOpen ? 'justify-center px-0' : ''}`}
                   title={!sidebarOpen ? label : undefined}
                 >
-                  <Icon size={18} className="shrink-0" />
+                  {/* Active indicator bar */}
+                  {isActive && (
+                    <span className="absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-r-full bg-teal-400" />
+                  )}
+                  <Icon
+                    size={18}
+                    className={`shrink-0 transition-colors ${
+                      isActive ? 'text-teal-400' : 'text-slate-500 group-hover:text-slate-300'
+                    }`}
+                  />
                   {sidebarOpen && <span>{label}</span>}
                 </button>
               </li>
@@ -210,11 +228,18 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
 
       {/* ─── Footer ─────────────────────────────────── */}
       {sidebarOpen && (
-        <div className="border-t border-slate-200 px-4 py-3">
-          <div className="flex items-center gap-2 text-xs text-slate-400">
+        <div className="border-t border-white/10 px-5 py-4">
+          <div className="flex items-center gap-2 text-xs text-slate-600">
             <Settings size={14} />
             <span>BuildWise v1.0</span>
           </div>
+        </div>
+      )}
+
+      {/* Collapsed: icon-only footer */}
+      {!sidebarOpen && (
+        <div className="border-t border-white/10 flex justify-center py-4">
+          <Settings size={14} className="text-slate-600" />
         </div>
       )}
     </aside>

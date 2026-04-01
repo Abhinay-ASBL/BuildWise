@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { Pencil } from 'lucide-react';
 import { useBudgetStore } from '../store';
 import type { BudgetLineItem } from '../types';
 
@@ -32,7 +33,6 @@ export default function EditableCell({
   useEffect(() => {
     if (isEditing) {
       setDraft(String(value));
-      // Small delay to ensure the input is rendered before focusing
       requestAnimationFrame(() => {
         inputRef.current?.focus();
         inputRef.current?.select();
@@ -77,31 +77,45 @@ export default function EditableCell({
 
   if (isEditing) {
     return (
-      <input
-        ref={inputRef}
-        type={type === 'text' ? 'text' : 'text'}
-        value={draft}
-        onChange={(e) => setDraft(e.target.value)}
-        onBlur={save}
-        onKeyDown={handleKeyDown}
-        className={`w-full rounded-md border border-blue-300 bg-white px-2 py-1 text-sm
-          ring-2 ring-blue-200 outline-none
-          ${type !== 'text' ? 'text-right font-[tabular-nums]' : ''}
-          ${className}`}
-        inputMode={type !== 'text' ? 'decimal' : 'text'}
-      />
+      <div className="relative">
+        {type === 'currency' && (
+          <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-[tabular-nums]">
+            ₹
+          </span>
+        )}
+        <input
+          ref={inputRef}
+          type="text"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onBlur={save}
+          onKeyDown={handleKeyDown}
+          className={`w-full rounded-lg border border-teal-300 bg-white px-2.5 py-1.5 text-sm
+            shadow-sm ring-2 ring-teal-500/20 outline-none transition-all duration-200
+            ${type === 'currency' ? 'pl-6' : ''}
+            ${type !== 'text' ? 'text-right font-[tabular-nums]' : ''}
+            ${className}`}
+          inputMode={type !== 'text' ? 'decimal' : 'text'}
+        />
+      </div>
     );
   }
 
   return (
     <div
       onClick={() => setEditingCell(cellId)}
-      className={`cursor-pointer rounded-md px-2 py-1 text-sm transition-colors hover:bg-blue-50
+      className={`group/cell relative cursor-pointer rounded-lg px-2.5 py-1.5 text-sm
+        transition-all duration-200 hover:bg-teal-50/50
         ${type !== 'text' ? 'text-right font-[tabular-nums]' : ''}
         ${className}`}
       title="Click to edit"
     >
-      {formatDisplay(value)}
+      {type === 'currency' && (
+        <span className="mr-0.5 text-slate-300 font-[tabular-nums]">₹</span>
+      )}
+      <span>{type === 'currency' ? formatDisplay(value).replace(/^₹\s*/, '') : formatDisplay(value)}</span>
+      <Pencil className="absolute right-1 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-300
+        opacity-0 transition-opacity duration-200 group-hover/cell:opacity-100" />
     </div>
   );
 }

@@ -29,6 +29,9 @@ export default function BudgetRow({ item }: BudgetRowProps) {
   const total = item.unitCost * item.quantity;
   const isTBC = item.status === 'TBC';
 
+  // Determine if over-budget (simple heuristic: if committed/invoiced/paid)
+  const isHighValue = total > 500000; // can be improved with category cap context
+
   useEffect(() => {
     if (!menuOpen) return;
     function handleClickOutside(e: MouseEvent) {
@@ -49,23 +52,25 @@ export default function BudgetRow({ item }: BudgetRowProps) {
 
   return (
     <tr
-      className={`group border-b border-slate-100 transition-colors hover:bg-blue-50/30
-        ${isTBC ? 'border-l-2 border-l-gray-300 border-dashed bg-gray-50/50' : ''}`}
+      className={`group border-b border-slate-100/80 transition-all duration-150
+        hover:bg-teal-50/30
+        ${isTBC ? 'border-l-2 border-dashed border-l-amber-300 bg-amber-50/30' : ''}
+      `}
     >
       {/* Item Name */}
-      <td className="py-1.5 pl-3 pr-2">
+      <td className="py-2 pl-5 pr-2">
         <EditableCell
           value={item.name}
           itemId={item.id}
           field="name"
           type="text"
           formatDisplay={(v) => String(v)}
-          className={isTBC ? 'text-gray-500' : ''}
+          className={isTBC ? 'text-slate-500 italic' : ''}
         />
       </td>
 
       {/* Per Unit Cost */}
-      <td className="px-2 py-1.5">
+      <td className="px-2 py-2">
         <EditableCell
           value={item.unitCost}
           itemId={item.id}
@@ -76,7 +81,7 @@ export default function BudgetRow({ item }: BudgetRowProps) {
       </td>
 
       {/* Quantity */}
-      <td className="px-2 py-1.5">
+      <td className="px-2 py-2">
         <EditableCell
           value={item.quantity}
           itemId={item.id}
@@ -87,13 +92,14 @@ export default function BudgetRow({ item }: BudgetRowProps) {
       </td>
 
       {/* Unit */}
-      <td className="px-2 py-1.5">
+      <td className="px-2 py-2">
         <select
           value={item.unit}
           onChange={(e) => updateLineItem(item.id, { unit: e.target.value })}
-          className="w-full rounded-md border border-transparent bg-transparent px-1 py-0.5
-            text-xs text-gray-600 transition-colors hover:border-slate-200 hover:bg-white
-            focus:border-blue-300 focus:ring-1 focus:ring-blue-200 focus:outline-none"
+          className="w-full rounded-lg border border-transparent bg-transparent px-1.5 py-1
+            text-xs text-slate-600 transition-all duration-200
+            hover:border-slate-200 hover:bg-white
+            focus:border-teal-300 focus:bg-white focus:ring-2 focus:ring-teal-500/20 focus:outline-none"
         >
           {UNITS.map((u) => (
             <option key={u} value={u}>
@@ -104,28 +110,35 @@ export default function BudgetRow({ item }: BudgetRowProps) {
       </td>
 
       {/* Total (read-only) */}
-      <td className="px-2 py-1.5">
-        <div className="rounded-md bg-gray-50 px-2 py-1 text-right text-sm font-medium font-[tabular-nums] text-gray-700">
+      <td className="px-2 py-2">
+        <div
+          className={`rounded-lg px-2.5 py-1.5 text-right text-sm font-semibold font-[tabular-nums]
+            ${isTBC
+              ? 'bg-amber-50/50 text-amber-700/70'
+              : 'bg-slate-50/80 text-teal-700'
+            }`}
+        >
           {formatINR(total)}
         </div>
       </td>
 
       {/* Status */}
-      <td className="px-2 py-1.5">
+      <td className="px-2 py-2">
         <StatusBadge itemId={item.id} status={item.status} />
       </td>
 
       {/* Team */}
-      <td className="px-2 py-1.5">
+      <td className="px-2 py-2">
         <select
           value={item.team ?? ''}
           onChange={(e) => {
             const val = e.target.value;
             updateItemTeam(item.id, val === '' ? null : (val as 'PMO' | 'AAED'));
           }}
-          className="w-full rounded-md border border-transparent bg-transparent px-1 py-0.5
-            text-xs text-gray-600 transition-colors hover:border-slate-200 hover:bg-white
-            focus:border-blue-300 focus:ring-1 focus:ring-blue-200 focus:outline-none"
+          className="w-full rounded-lg border border-transparent bg-transparent px-1.5 py-1
+            text-xs text-slate-600 transition-all duration-200
+            hover:border-slate-200 hover:bg-white
+            focus:border-teal-300 focus:bg-white focus:ring-2 focus:ring-teal-500/20 focus:outline-none"
         >
           {TEAMS.map((t) => (
             <option key={t.label} value={t.value ?? ''}>
@@ -136,9 +149,9 @@ export default function BudgetRow({ item }: BudgetRowProps) {
       </td>
 
       {/* Remark */}
-      <td className="max-w-[160px] px-2 py-1.5">
+      <td className="max-w-[160px] px-2 py-2">
         <div
-          className="truncate text-xs text-gray-500"
+          className="truncate text-xs text-slate-400"
           title={item.remark || undefined}
         >
           {item.remark || '\u2014'}
@@ -146,12 +159,12 @@ export default function BudgetRow({ item }: BudgetRowProps) {
       </td>
 
       {/* Actions */}
-      <td className="px-2 py-1.5">
+      <td className="px-2 py-2">
         <div ref={menuRef} className="relative">
           <button
             onClick={() => setMenuOpen((p) => !p)}
-            className="rounded-md p-1 text-gray-400 opacity-0 transition-all
-              hover:bg-slate-100 hover:text-gray-600 group-hover:opacity-100"
+            className="rounded-lg p-1.5 text-slate-400 opacity-0 transition-all duration-200
+              hover:bg-slate-100 hover:text-slate-600 group-hover:opacity-100"
             aria-label="Row actions"
           >
             <MoreVertical className="h-4 w-4" />
@@ -159,18 +172,19 @@ export default function BudgetRow({ item }: BudgetRowProps) {
 
           {menuOpen && (
             <div
-              className="absolute right-0 top-full z-50 mt-1 w-40 rounded-lg border border-slate-200
-                bg-white py-1 shadow-lg"
+              className="absolute right-0 top-full z-50 mt-1.5 w-44 overflow-hidden rounded-xl
+                border border-white/60 bg-white/95 py-1 shadow-xl shadow-black/10 backdrop-blur-xl
+                animate-in fade-in slide-in-from-top-1 duration-150"
             >
               <button
                 onClick={() => {
                   duplicateLineItem(item.id);
                   setMenuOpen(false);
                 }}
-                className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs
-                  text-gray-700 transition-colors hover:bg-slate-50"
+                className="flex w-full items-center gap-2.5 px-3.5 py-2 text-left text-xs
+                  font-medium text-slate-700 transition-colors duration-150 hover:bg-slate-50"
               >
-                <Copy className="h-3.5 w-3.5" />
+                <Copy className="h-3.5 w-3.5 text-slate-400" />
                 Duplicate
               </button>
               <button
@@ -178,8 +192,8 @@ export default function BudgetRow({ item }: BudgetRowProps) {
                   archiveLineItem(item.id);
                   setMenuOpen(false);
                 }}
-                className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs
-                  text-red-600 transition-colors hover:bg-red-50"
+                className="flex w-full items-center gap-2.5 px-3.5 py-2 text-left text-xs
+                  font-medium text-red-600 transition-colors duration-150 hover:bg-red-50"
               >
                 <Archive className="h-3.5 w-3.5" />
                 Archive
