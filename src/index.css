@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-sidebar: #FAFBFC;
+  --color-sidebar-border: #E2E8F0;
+  --color-main: #F8FAFC;
+  --color-card: #FFFFFF;
+  --color-card-hover: #F8FAFC;
+  --color-card-border: #E2E8F0;
+
+  --color-primary: #1E40AF;
+  --color-primary-light: #3B82F6;
+  --color-primary-bg: rgba(30, 64, 175, 0.06);
+
+  --color-accent: #0D9488;
+  --color-accent-light: #14B8A6;
+  --color-accent-bg: rgba(13, 148, 136, 0.06);
+
+  --color-green: #059669;
+  --color-green-bg: rgba(5, 150, 105, 0.08);
+  --color-red: #DC2626;
+  --color-red-bg: rgba(220, 38, 38, 0.08);
+  --color-amber: #D97706;
+  --color-amber-bg: rgba(217, 119, 6, 0.08);
+
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94A3B8;
+
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'Space Grotesk', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-main);
+  color: var(--color-text-primary);
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tabular numbers for financial data alignment — use Space Grotesk */
+.tabular-nums {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Number input spinners hidden */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
