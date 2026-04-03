@@ -8,7 +8,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from 'recharts';
-import { Building2, Ruler, IndianRupee, TrendingUp, Plus, Trash2, Pencil, Settings } from 'lucide-react';
+import { Building2, Ruler, IndianRupee, TrendingUp, Plus, Trash2, Settings } from 'lucide-react';
 import {
   useBudgetStore,
   useCategories,

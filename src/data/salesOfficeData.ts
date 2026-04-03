@@ -85,10 +85,10 @@ export const defaultLineItems: BudgetLineItem[] = [
 
 // ─── Area Statement from CSV ────────────────────────────────────────
 export const defaultAreaStatement: AreaStatement[] = [
-  { label: 'Ground Floor BUA', areaSqft: 6416.15 },
-  { label: 'First Floor BUA', areaSqft: 830.3 },
-  { label: 'Landscape Area 1', areaSqft: 3050 },
-  { label: 'Landscape Area 2', areaSqft: 700 },
+  { id: 'area-gf', label: 'Ground Floor BUA', areaSqft: 6416.15 },
+  { id: 'area-ff', label: 'First Floor BUA', areaSqft: 830.3 },
+  { id: 'area-ls1', label: 'Landscape Area 1', areaSqft: 3050 },
+  { id: 'area-ls2', label: 'Landscape Area 2', areaSqft: 700 },
 ];
 
 // ─── Project Metadata ───────────────────────────────────────────────
