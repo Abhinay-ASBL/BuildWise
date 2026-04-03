@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useBudgetStore, useActiveScenario, useSectionTotal, useCostPerSqft } from '../store';
 import { formatINRCompact, formatCostPerSqft, formatINR, formatIndianNumber, parseINR } from '../utils/formatters';
+import SyncStatus from './SyncStatus';
 
 export type TabId = 'dashboard' | 'capex' | 'opex' | 'area' | 'scenarios';
 
@@ -229,9 +230,12 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
       {/* ─── Footer ─────────────────────────────────── */}
       {sidebarOpen && (
         <div className="border-t border-white/10 px-5 py-4">
-          <div className="flex items-center gap-2 text-xs text-slate-600">
-            <Settings size={14} />
-            <span>BuildWise v1.0</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs text-slate-600">
+              <Settings size={14} />
+              <span>BuildWise v1.0</span>
+            </div>
+            <SyncStatus />
           </div>
         </div>
       )}

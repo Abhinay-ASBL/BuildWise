@@ -31,13 +31,12 @@ export default function EditableCell({
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (isEditing) {
-      setDraft(String(value));
-      requestAnimationFrame(() => {
-        inputRef.current?.focus();
-        inputRef.current?.select();
-      });
-    }
+    if (!isEditing) return;
+
+    requestAnimationFrame(() => {
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    });
   }, [isEditing, value]);
 
   const save = useCallback(() => {
@@ -45,7 +44,7 @@ export default function EditableCell({
     let parsed: string | number = draft.trim();
 
     if (type === 'currency' || type === 'number') {
-      const cleaned = String(parsed).replace(/[^0-9.\-]/g, '');
+      const cleaned = String(parsed).replace(/[^0-9.-]/g, '');
       parsed = parseFloat(cleaned);
       if (isNaN(parsed)) parsed = 0;
     }
@@ -103,7 +102,10 @@ export default function EditableCell({
 
   return (
     <div
-      onClick={() => setEditingCell(cellId)}
+      onClick={() => {
+        setDraft(String(value));
+        setEditingCell(cellId);
+      }}
       className={`group/cell relative cursor-pointer rounded-lg px-2.5 py-1.5 text-sm
         transition-all duration-200 hover:bg-teal-50/50
         ${type !== 'text' ? 'text-right font-[tabular-nums]' : ''}

@@ -29,8 +29,6 @@ export default function BudgetRow({ item }: BudgetRowProps) {
   const total = item.unitCost * item.quantity;
   const isTBC = item.status === 'TBC';
 
-  // Determine if over-budget (simple heuristic: if committed/invoiced/paid)
-  const isHighValue = total > 500000; // can be improved with category cap context
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -150,12 +148,14 @@ export default function BudgetRow({ item }: BudgetRowProps) {
 
       {/* Remark */}
       <td className="max-w-[160px] px-2 py-2">
-        <div
-          className="truncate text-xs text-slate-400"
-          title={item.remark || undefined}
-        >
-          {item.remark || '\u2014'}
-        </div>
+        <EditableCell
+          value={item.remark}
+          itemId={item.id}
+          field="remark"
+          type="text"
+          formatDisplay={(v) => String(v) || '\u2014'}
+          className="text-xs text-slate-400"
+        />
       </td>
 
       {/* Actions */}

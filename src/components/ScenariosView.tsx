@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import {
   Plus,
   Trash2,
@@ -7,6 +7,9 @@ import {
   SlidersHorizontal,
   GitCompare,
   ChevronDown,
+  Pencil,
+  Check,
+  X,
 } from 'lucide-react';
 import { useBudgetStore } from '../store';
 import { formatINR, formatINRCompact, formatCostPerSqft } from '../utils/formatters';
@@ -88,8 +91,34 @@ function ScenarioList() {
   const [newName, setNewName] = useState('');
   const [cloneFrom, setCloneFrom] = useState('');
 
+  const updateScenario = useBudgetStore((s) => s.updateScenario);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editDesc, setEditDesc] = useState('');
+  const editNameRef = useRef<HTMLInputElement>(null);
+
   const scenarioList = Object.values(scenarios);
   const canDelete = scenarioList.length > 1;
+
+  function startEditing(scenario: Scenario) {
+    setEditingId(scenario.id);
+    setEditName(scenario.name);
+    setEditDesc(scenario.description);
+  }
+
+  function saveEditing() {
+    if (editingId && editName.trim()) {
+      updateScenario(editingId, { name: editName.trim(), description: editDesc.trim() });
+    }
+    setEditingId(null);
+  }
+
+  useEffect(() => {
+    if (editingId && editNameRef.current) {
+      editNameRef.current.focus();
+      editNameRef.current.select();
+    }
+  }, [editingId]);
 
   function handleCreate() {
     if (!newName.trim()) return;
@@ -191,16 +220,55 @@ function ScenarioList() {
               }`}
             >
               <div className="mb-3 flex items-start justify-between">
-                <div className="min-w-0 flex-1">
-                  <h3 className="truncate text-sm font-semibold text-slate-900">
-                    {scenario.name}
-                  </h3>
-                  {scenario.description && (
-                    <p className="mt-0.5 truncate text-xs text-slate-500">
-                      {scenario.description}
-                    </p>
-                  )}
-                </div>
+                {editingId === scenario.id ? (
+                  <div className="min-w-0 flex-1 space-y-1.5">
+                    <input
+                      ref={editNameRef}
+                      type="text"
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') saveEditing();
+                        if (e.key === 'Escape') setEditingId(null);
+                      }}
+                      className="w-full rounded-md border border-blue-300 px-2 py-1 text-sm font-semibold text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      placeholder="Scenario name"
+                    />
+                    <input
+                      type="text"
+                      value={editDesc}
+                      onChange={(e) => setEditDesc(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') saveEditing();
+                        if (e.key === 'Escape') setEditingId(null);
+                      }}
+                      className="w-full rounded-md border border-slate-300 px-2 py-1 text-xs text-slate-600 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      placeholder="Description (optional)"
+                    />
+                    <div className="flex gap-1">
+                      <button onClick={saveEditing} className="rounded-md bg-blue-600 p-1 text-white hover:bg-blue-700">
+                        <Check size={12} />
+                      </button>
+                      <button onClick={() => setEditingId(null)} className="rounded-md border border-slate-300 p-1 text-slate-500 hover:bg-slate-50">
+                        <X size={12} />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="group/sname min-w-0 flex-1 cursor-pointer" onDoubleClick={() => startEditing(scenario)}>
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="truncate text-sm font-semibold text-slate-900">
+                        {scenario.name}
+                      </h3>
+                      <Pencil className="h-3 w-3 shrink-0 text-slate-300 opacity-0 transition-opacity group-hover/sname:opacity-100" />
+                    </div>
+                    {scenario.description && (
+                      <p className="mt-0.5 truncate text-xs text-slate-500">
+                        {scenario.description}
+                      </p>
+                    )}
+                  </div>
+                )}
                 {isActive && (
                   <span className="ml-2 shrink-0 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold uppercase text-blue-700">
                     Active

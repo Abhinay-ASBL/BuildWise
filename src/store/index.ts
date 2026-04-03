@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
+import { supabaseStorage } from '../lib/supabaseStorage';
 import { nanoid } from 'nanoid';
 import type {
   AppState,
@@ -11,35 +12,7 @@ import type {
   Scenario,
   Team,
 } from '../types';
-import {
-  defaultCategories,
-  defaultLineItems,
-  defaultAreaStatement,
-  defaultMetadata,
-} from '../data/salesOfficeData';
-
-// ─── Build default scenario from CSV data ───────────────────────────
-function buildDefaultScenario(): Scenario {
-  const categories: Record<string, BudgetCategory> = {};
-  for (const cat of defaultCategories) {
-    categories[cat.id] = { ...cat };
-  }
-
-  const lineItems: Record<string, BudgetLineItem> = {};
-  for (const li of defaultLineItems) {
-    lineItems[li.id] = { ...li };
-  }
-
-  return {
-    id: 'default',
-    name: 'Legacy Modular Sales Office — Master',
-    description: 'Based on Master Costing Sheet CSV',
-    metadata: { ...defaultMetadata },
-    categories,
-    lineItems,
-    areaStatement: [...defaultAreaStatement],
-  };
-}
+import { createInitialAppState } from '../lib/initialAppState';
 
 // ─── Store Actions Interface ────────────────────────────────────────
 interface BudgetActions {
@@ -63,7 +36,13 @@ interface BudgetActions {
   createScenario: (name: string, cloneFromId?: string) => void;
   switchScenario: (scenarioId: string) => void;
   deleteScenario: (scenarioId: string) => void;
+  updateScenario: (scenarioId: string, changes: Partial<Pick<Scenario, 'name' | 'description'>>) => void;
   updateMetadata: (changes: Partial<Scenario['metadata']>) => void;
+
+  // Area Statement
+  addAreaEntry: (entry: { label: string; areaSqft: number }) => void;
+  updateAreaEntry: (index: number, changes: Partial<{ label: string; areaSqft: number }>) => void;
+  removeAreaEntry: (index: number) => void;
 
   // UI
   setEditingCell: (cellId: string | null) => void;
@@ -77,10 +56,13 @@ type BudgetStore = AppState & BudgetActions;
 
 export const useBudgetStore = create<BudgetStore>()(
   persist(
-    immer((set, _get) => ({
+    immer((set) => {
+      const initialState = createInitialAppState();
+
+      return {
       // ─── Initial State ──────────────────────────────────
-      scenarios: { default: buildDefaultScenario() },
-      activeScenarioId: 'default',
+      scenarios: initialState.scenarios,
+      activeScenarioId: initialState.activeScenarioId,
       editingCellId: null,
       sidebarOpen: true,
 
@@ -241,12 +223,12 @@ export const useBudgetStore = create<BudgetStore>()(
               name,
               description: '',
               metadata: {
-                projectName: name,
-                totalBUA: 7246.45,
-                landscapeArea: 3750,
-                totalArea: 10996.45,
+                projectName: '',
+                totalBUA: 0,
+                landscapeArea: 0,
+                totalArea: 0,
                 budgetCap: null,
-                opexMonths: 24,
+                opexMonths: 0,
                 createdAt: Date.now(),
                 updatedAt: Date.now(),
               },
@@ -268,14 +250,21 @@ export const useBudgetStore = create<BudgetStore>()(
 
       deleteScenario: (scenarioId) =>
         set((state) => {
-          if (
-            scenarioId === 'default' ||
-            Object.keys(state.scenarios).length <= 1
-          )
+          if (Object.keys(state.scenarios).length <= 1)
             return;
           delete state.scenarios[scenarioId];
           if (state.activeScenarioId === scenarioId) {
             state.activeScenarioId = Object.keys(state.scenarios)[0];
+          }
+        }),
+
+      updateScenario: (scenarioId, changes) =>
+        set((state) => {
+          const scenario = state.scenarios[scenarioId];
+          if (scenario) {
+            if (changes.name !== undefined) scenario.name = changes.name;
+            if (changes.description !== undefined) scenario.description = changes.description;
+            scenario.metadata.updatedAt = Date.now();
           }
         }),
 
@@ -286,6 +275,41 @@ export const useBudgetStore = create<BudgetStore>()(
             Object.assign(scenario.metadata, changes, {
               updatedAt: Date.now(),
             });
+            // Auto-compute totalArea when BUA or landscape changes
+            if (changes.totalBUA !== undefined || changes.landscapeArea !== undefined) {
+              scenario.metadata.totalArea =
+                (changes.totalBUA ?? scenario.metadata.totalBUA) +
+                (changes.landscapeArea ?? scenario.metadata.landscapeArea);
+            }
+          }
+        }),
+
+      // ─── Area Statement Actions ────────────────────────
+      addAreaEntry: (entry) =>
+        set((state) => {
+          const scenario = state.scenarios[state.activeScenarioId];
+          if (scenario) {
+            scenario.areaStatement.push({ id: nanoid(), ...entry });
+            scenario.metadata.updatedAt = Date.now();
+          }
+        }),
+
+      updateAreaEntry: (index, changes) =>
+        set((state) => {
+          const scenario = state.scenarios[state.activeScenarioId];
+          if (scenario && scenario.areaStatement[index]) {
+            if (changes.label !== undefined) scenario.areaStatement[index].label = changes.label;
+            if (changes.areaSqft !== undefined) scenario.areaStatement[index].areaSqft = changes.areaSqft;
+            scenario.metadata.updatedAt = Date.now();
+          }
+        }),
+
+      removeAreaEntry: (index) =>
+        set((state) => {
+          const scenario = state.scenarios[state.activeScenarioId];
+          if (scenario) {
+            scenario.areaStatement.splice(index, 1);
+            scenario.metadata.updatedAt = Date.now();
           }
         }),
 
@@ -303,13 +327,17 @@ export const useBudgetStore = create<BudgetStore>()(
       // ─── Reset ─────────────────────────────────────────
       resetToDefault: () =>
         set((state) => {
-          state.scenarios = { default: buildDefaultScenario() };
-          state.activeScenarioId = 'default';
+          const nextState = createInitialAppState();
+          state.scenarios = nextState.scenarios;
+          state.activeScenarioId = nextState.activeScenarioId;
         }),
-    })),
+    };
+    }),
     {
       name: 'buildwise-store',
-      partialize: (state) => ({
+      storage: createJSONStorage(() => supabaseStorage),
+      skipHydration: true,
+      partialize: (state): Pick<AppState, 'scenarios' | 'activeScenarioId'> => ({
         scenarios: state.scenarios,
         activeScenarioId: state.activeScenarioId,
       }),

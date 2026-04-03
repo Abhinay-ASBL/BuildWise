@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { ChevronDown, Plus } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { ChevronDown, Plus, Pencil } from 'lucide-react';
 import type { BudgetCategory } from '../types';
 import { useBudgetStore, useCategoryItems, useCategoryTotal, useGrandTotal } from '../store';
 import { formatINR, formatCostPerSqft, formatPercent } from '../utils/formatters';
@@ -11,6 +11,9 @@ interface CategoryAccordionProps {
 
 export default function CategoryAccordion({ category }: CategoryAccordionProps) {
   const [expanded, setExpanded] = useState(true);
+  const [editingName, setEditingName] = useState(false);
+  const [nameDraft, setNameDraft] = useState(category.name);
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
   const items = useCategoryItems(category.id);
   const subtotal = useCategoryTotal(category.id);
@@ -19,6 +22,24 @@ export default function CategoryAccordion({ category }: CategoryAccordionProps) 
     (s) => s.scenarios[s.activeScenarioId]?.metadata.totalBUA ?? 1
   );
   const addLineItem = useBudgetStore((s) => s.addLineItem);
+  const updateCategory = useBudgetStore((s) => s.updateCategory);
+
+  useEffect(() => {
+    if (editingName && nameInputRef.current) {
+      nameInputRef.current.focus();
+      nameInputRef.current.select();
+    }
+  }, [editingName]);
+
+  const saveCategoryName = useCallback(() => {
+    const trimmed = nameDraft.trim();
+    if (trimmed && trimmed !== category.name) {
+      updateCategory(category.id, { name: trimmed });
+    } else {
+      setNameDraft(category.name);
+    }
+    setEditingName(false);
+  }, [nameDraft, category.name, category.id, updateCategory]);
 
   const costPerSqft = totalBUA > 0 ? subtotal / totalBUA : 0;
   const pctOfTotal = grandTotal > 0 ? (subtotal / grandTotal) * 100 : 0;
@@ -55,9 +76,31 @@ export default function CategoryAccordion({ category }: CategoryAccordionProps) 
         />
 
         {/* Category name */}
-        <span className="flex-1 text-[15px] font-semibold text-slate-800">
-          {category.name}
-        </span>
+        {editingName ? (
+          <input
+            ref={nameInputRef}
+            type="text"
+            value={nameDraft}
+            onChange={(e) => setNameDraft(e.target.value)}
+            onBlur={saveCategoryName}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') saveCategoryName();
+              if (e.key === 'Escape') { setNameDraft(category.name); setEditingName(false); }
+              e.stopPropagation();
+            }}
+            onClick={(e) => e.stopPropagation()}
+            className="flex-1 rounded-lg border border-teal-300 bg-white px-2.5 py-1 text-[15px] font-semibold text-slate-800
+              shadow-sm outline-none ring-2 ring-teal-500/20"
+          />
+        ) : (
+          <span
+            className="group/catname flex flex-1 items-center gap-1.5 text-[15px] font-semibold text-slate-800"
+            onDoubleClick={(e) => { e.stopPropagation(); setNameDraft(category.name); setEditingName(true); }}
+          >
+            {category.name}
+            <Pencil className="h-3 w-3 text-slate-300 opacity-0 transition-opacity group-hover/catname:opacity-100" />
+          </span>
+        )}
 
         {/* Budget progress bar (if cap exists) */}
         {hasCap && (

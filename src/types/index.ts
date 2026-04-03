@@ -36,6 +36,7 @@ export interface BudgetCategory {
 }
 
 export interface AreaStatement {
+  id: string;
   label: string;
   areaSqft: number;
 }
